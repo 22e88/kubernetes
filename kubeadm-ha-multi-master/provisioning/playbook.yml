@@ -41,6 +41,13 @@
 
       notify: restart haproxy  
 
+  handlers:
+    
+    - name: restart haproxy
+      service:
+        name: haproxy
+        state: restarted
+
 
 - hosts: kube
 
@@ -112,18 +119,18 @@
         - curl 
         - gnupg-agent 
         - software-properties-common
-        - kubeadm=1.19.2-00
-        - kubelet=1.19.2-00
-        - kubectl=1.19.2-00
+        #- kubeadm=1.19.2-00
+        #- kubelet=1.19.2-00
+        #- kubectl=1.19.2-00
         - docker-ce=5:19.03.10~3-0~ubuntu-focal 
         - containerd.io
         #- kubeadm
         #- kubelet
         #- kubectl
 
-  handlers:
-    
-    - name: restart haproxy
-      service:
-        name: haproxy
-        state: restarted
+# apt-get remove --purge kubeadm kubectl kubelet kubernetes-cni
+# apt install kubeadm=1.19.2-00 kubectl=1.19.2-00 kubelet=1.19.2-00 kubernetes-cni
+
+
+
+
