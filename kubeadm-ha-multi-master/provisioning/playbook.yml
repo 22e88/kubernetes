@@ -3,39 +3,72 @@
 - hosts: loadbal
   gather_facts: no
     
-  #pre_tasks:
-  #  
-  #  - name: update apt cache
-  #    apt: 
-  #      update_cache: yes
+  pre_tasks:
+    
+    - name: update apt cache
+      apt: 
+        update_cache: yes
 
   tasks:
 
-    #- name: install haproxy
-    #  package:
-    #    name: haproxy
-    #    state: present
-    #
-    #- name: append config snippet to haproxy.cfg file
-    #  blockinfile:
-    #    path: /etc/haproxy/haproxy.cfg
-    #    backup: yes
-    #    block: | 
+    - name: disable firewall on loadbal
+      ufw:
+        state: disabled
 
-    #      frontend kubernetes-frontend
-    #          bind 172.16.16.100:6443
-    #          mode tcp
-    #          option tcplog
-    #          default_backend kubernetes-backend
+    - name: install haproxy
+      package:
+        name: haproxy
+        state: present
+    
+    - name: append config snippet to haproxy.cfg file
+      blockinfile:
+        path: /etc/haproxy/haproxy.cfg
+        backup: yes
+        block: | 
 
-    #      backend kubernetes-backend
-    #          mode tcp
-    #          option tcp-check
-    #          balance roundrobin
-    #          server kmaster1 172.16.16.101:6443 check fall 3 rise 2
-    #          server kmaster2 172.16.16.102:6443 check fall 3 rise 2
+          frontend kubernetes-frontend
+              bind 172.16.16.100:6443
+              mode tcp
+              option tcplog
+              default_backend kubernetes-backend
 
-    #  notify: restart haproxy  
+          backend kubernetes-backend
+              mode tcp
+              option tcp-check
+              balance roundrobin
+              server kmaster1 172.16.16.101:6443 check fall 3 rise 2
+              server kmaster2 172.16.16.102:6443 check fall 3 rise 2
+
+      notify: restart haproxy  
+
+
+- hosts: kube
+
+  gather_facts: yes
+    
+  pre_tasks:
+    
+    - name: add apt keys
+      apt_key:
+        url: '{{ item }}'
+        state: present
+      loop:
+        - https://download.docker.com/linux/ubuntu/gpg
+        - https://packages.cloud.google.com/apt/doc/apt-key.gpg
+
+    - name: add apt repositories
+      apt_repository:
+        repo: '{{ item }}'
+        state: present
+      loop:
+        - deb https://download.docker.com/linux/ubuntu focal stable
+        - deb https://apt.kubernetes.io/ kubernetes-xenial main
+
+    - name: update apt cache
+      apt: 
+        update_cache: yes
+    
+  tasks:
 
     - name: disable firewall
       ufw:
@@ -44,18 +77,49 @@
     - name: disable swap if currently in use 
       shell: swapoff -a
 
-    #- name: Remove swapfile from /etc/fstab
-    #  mount:
-    #    fstype: swap
-    #    state: absent
-
     - name: disable swap entry in fstab
       replace:
         path: /etc/fstab
         regexp: '^([^#].*?\sswap\s+sw\s+.*)$'
         replace: '# \1'
     
+    #- name: set sysctl / kernel parameters
+    #  sysctl:
+    #    sysctl_file: /etc/sysctl.d/10-kubernetes.conf
+    #    name: '{{ item }}'
+    #    value: 1
+    #    reload: yes
+    #    sysctl_set: yes
+    #  loop:
+    #    - net.bridge.bridge-nf-call-ip6tables
+    #    - net.bridge.bridge-nf-call-iptables
 
+    - name: copy config file for kernel parameters to sysctl.d
+      copy:
+        src: files/11-kubernetes.conf
+        dest: /etc/sysctl.d/
+
+    - name: activate / load sysctl settings
+      shell: sysctl --system 
+
+    - name: install packages
+      package: 
+        name: '{{ item }}'
+        state: present
+      loop:
+        - apt-transport-https 
+        - ca-certificates 
+        - curl 
+        - gnupg-agent 
+        - software-properties-common
+        - kubeadm=1.19.2-00
+        - kubelet=1.19.2-00
+        - kubectl=1.19.2-00
+        - docker-ce=5:19.03.10~3-0~ubuntu-focal 
+        - containerd.io
+        #- kubeadm
+        #- kubelet
+        #- kubectl
 
   handlers:
     
