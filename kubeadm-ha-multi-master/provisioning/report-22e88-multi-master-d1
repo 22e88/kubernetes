@@ -1,0 +1,332 @@
+
+Report of a successful multimaster join:
+
+
+root@kmaster1:~# time kubeadm init --control-plane-endpoint="172.16.16.100:6443" --upload-certs --apiserver-advertise-address=172.16.16.101 --pod-network-cidr=192.168.0.0/16
+I0127 19:02:46.994792   27041 version.go:252] remote version is much newer: v1.20.2; falling back to: stable-1.19
+W0127 19:02:47.438924   27041 configset.go:348] WARNING: kubeadm cannot validate component configs for API groups [kubelet.config.k8s.io kubeproxy.config.k8s.io]
+[init] Using Kubernetes version: v1.19.7
+[preflight] Running pre-flight checks
+        [WARNING IsDockerSystemdCheck]: detected "cgroupfs" as the Docker cgroup driver. The recommended driver is "systemd". Please follow the guide at https://kubernetes.io/docs/setup/cri/
+[preflight] Pulling images required for setting up a Kubernetes cluster
+[preflight] This might take a minute or two, depending on the speed of your internet connection
+[preflight] You can also perform this action in beforehand using 'kubeadm config images pull'
+[certs] Using certificateDir folder "/etc/kubernetes/pki"
+[certs] Generating "ca" certificate and key
+[certs] Generating "apiserver" certificate and key
+[certs] apiserver serving cert is signed for DNS names [kmaster1 kubernetes kubernetes.default kubernetes.default.svc kubernetes.default.svc.cluster.local] and IPs [10.96.0.1 172.16.16.101 172.16.16.100]
+[certs] Generating "apiserver-kubelet-client" certificate and key
+[certs] Generating "front-proxy-ca" certificate and key
+[certs] Generating "front-proxy-client" certificate and key
+[certs] Generating "etcd/ca" certificate and key
+[certs] Generating "etcd/server" certificate and key
+[certs] etcd/server serving cert is signed for DNS names [kmaster1 localhost] and IPs [172.16.16.101 127.0.0.1 ::1]
+[certs] Generating "etcd/peer" certificate and key
+[certs] etcd/peer serving cert is signed for DNS names [kmaster1 localhost] and IPs [172.16.16.101 127.0.0.1 ::1]
+[certs] Generating "etcd/healthcheck-client" certificate and key
+[certs] Generating "apiserver-etcd-client" certificate and key
+[certs] Generating "sa" key and public key
+[kubeconfig] Using kubeconfig folder "/etc/kubernetes"
+[kubeconfig] Writing "admin.conf" kubeconfig file
+[kubeconfig] Writing "kubelet.conf" kubeconfig file
+[kubeconfig] Writing "controller-manager.conf" kubeconfig file
+[kubeconfig] Writing "scheduler.conf" kubeconfig file
+[kubelet-start] Writing kubelet environment file with flags to file "/var/lib/kubelet/kubeadm-flags.env"
+[kubelet-start] Writing kubelet configuration to file "/var/lib/kubelet/config.yaml"
+[kubelet-start] Starting the kubelet
+[control-plane] Using manifest folder "/etc/kubernetes/manifests"
+[control-plane] Creating static Pod manifest for "kube-apiserver"
+[control-plane] Creating static Pod manifest for "kube-controller-manager"
+[control-plane] Creating static Pod manifest for "kube-scheduler"
+[etcd] Creating static Pod manifest for local etcd in "/etc/kubernetes/manifests"
+[wait-control-plane] Waiting for the kubelet to boot up the control plane as static Pods from directory "/etc/kubernetes/manifests". This can take up to 4m0s
+[apiclient] All control plane components are healthy after 19.058297 seconds
+[upload-config] Storing the configuration used in ConfigMap "kubeadm-config" in the "kube-system" Namespace
+[kubelet] Creating a ConfigMap "kubelet-config-1.19" in namespace kube-system with the configuration for the kubelets in the cluster
+[upload-certs] Storing the certificates in Secret "kubeadm-certs" in the "kube-system" Namespace
+[upload-certs] Using certificate key:
+f9ffa75c1fa2604ae13e0a686b0f77ee5866dc88cd329b1908978297ba2fa8ff
+[mark-control-plane] Marking the node kmaster1 as control-plane by adding the label "node-role.kubernetes.io/master=''"
+[mark-control-plane] Marking the node kmaster1 as control-plane by adding the taints [node-role.kubernetes.io/master:NoSchedule]
+[bootstrap-token] Using token: mvigib.bncdrwtvn5dgcj9l
+[bootstrap-token] Configuring bootstrap tokens, cluster-info ConfigMap, RBAC Roles
+[bootstrap-token] configured RBAC rules to allow Node Bootstrap tokens to get nodes
+[bootstrap-token] configured RBAC rules to allow Node Bootstrap tokens to post CSRs in order for nodes to get long term certificate credentials
+[bootstrap-token] configured RBAC rules to allow the csrapprover controller automatically approve CSRs from a Node Bootstrap Token
+[bootstrap-token] configured RBAC rules to allow certificate rotation for all node client certificates in the cluster
+[bootstrap-token] Creating the "cluster-info" ConfigMap in the "kube-public" namespace
+[kubelet-finalize] Updating "/etc/kubernetes/kubelet.conf" to point to a rotatable kubelet client certificate and key
+[addons] Applied essential addon: CoreDNS
+[addons] Applied essential addon: kube-proxy
+
+Your Kubernetes control-plane has initialized successfully!
+
+To start using your cluster, you need to run the following as a regular user:
+
+  mkdir -p $HOME/.kube
+  sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
+  sudo chown $(id -u):$(id -g) $HOME/.kube/config
+
+You should now deploy a pod network to the cluster.
+Run "kubectl apply -f [podnetwork].yaml" with one of the options listed at:
+  https://kubernetes.io/docs/concepts/cluster-administration/addons/
+
+You can now join any number of the control-plane node running the following command on each as root:
+
+  kubeadm join 172.16.16.100:6443 --token mvigib.bncdrwtvn5dgcj9l \
+    --discovery-token-ca-cert-hash sha256:71a370a3faba67590e90ea8a8c97678136e66eef3aa0647029a8f28a5c72baba \
+    --control-plane --certificate-key f9ffa75c1fa2604ae13e0a686b0f77ee5866dc88cd329b1908978297ba2fa8ff
+
+Please note that the certificate-key gives access to cluster sensitive data, keep it secret!
+As a safeguard, uploaded-certs will be deleted in two hours; If necessary, you can use
+"kubeadm init phase upload-certs --upload-certs" to reload certs afterward.
+
+Then you can join any number of worker nodes by running the following on each as root:
+
+kubeadm join 172.16.16.100:6443 --token mvigib.bncdrwtvn5dgcj9l \
+    --discovery-token-ca-cert-hash sha256:71a370a3faba67590e90ea8a8c97678136e66eef3aa0647029a8f28a5c72baba
+
+real    1m41.139s
+user    0m5.884s
+sys     0m0.983s
+root@kmaster1:~#
+
+=====================================================
+Dann ausgefuehrt auf kmaster2:
+
+ kubeadm join 172.16.16.100:6443 --token mvigib.bncdrwtvn5dgcj9l \
+    --discovery-token-ca-cert-hash sha256:71a370a3faba67590e90ea8a8c97678136e66eef3aa0647029a8f28a5c72baba \
+    --control-plane --certificate-key f9ffa75c1fa2604ae13e0a686b0f77ee5866dc88cd329b1908978297ba2fa8ff --apiserver-advertise-address="172.16.16.102"
+
+Siehe hier:
+
+root@kmaster2:~# ip a
+1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN group default qlen 1000
+    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
+    inet 127.0.0.1/8 scope host lo
+       valid_lft forever preferred_lft forever
+    inet6 ::1/128 scope host
+       valid_lft forever preferred_lft forever
+2: eth0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc fq_codel state UP group default qlen 1000
+    link/ether 08:00:27:14:86:db brd ff:ff:ff:ff:ff:ff
+    inet 10.0.2.15/24 brd 10.0.2.255 scope global dynamic eth0
+       valid_lft 83273sec preferred_lft 83273sec
+    inet6 fe80::a00:27ff:fe14:86db/64 scope link
+       valid_lft forever preferred_lft forever
+3: eth1: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc fq_codel state UP group default qlen 1000
+    link/ether 08:00:27:4b:da:d2 brd ff:ff:ff:ff:ff:ff
+    inet 172.16.16.102/24 brd 172.16.16.255 scope global eth1
+       valid_lft forever preferred_lft forever
+    inet6 fe80::a00:27ff:fe4b:dad2/64 scope link
+       valid_lft forever preferred_lft forever
+4: docker0: <NO-CARRIER,BROADCAST,MULTICAST,UP> mtu 1500 qdisc noqueue state DOWN group default
+    link/ether 02:42:16:8a:30:0d brd ff:ff:ff:ff:ff:ff
+    inet 172.17.0.1/16 brd 172.17.255.255 scope global docker0
+       valid_lft forever preferred_lft forever
+root@kmaster2:~#
+
+
+
+
+root@kmaster2:~# kubeadm join 172.16.16.100:6443 --token mvigib.bncdrwtvn5dgcj9l \
+>     --discovery-token-ca-cert-hash sha256:71a370a3faba67590e90ea8a8c97678136e66eef3aa0647029a8f28a5c72baba \
+>     --control-plane --certificate-key f9ffa75c1fa2604ae13e0a686b0f77ee5866dc88cd329b1908978297ba2fa8ff --apiserver-advertise-address="172.16.16.102"
+[preflight] Running pre-flight checks
+        [WARNING IsDockerSystemdCheck]: detected "cgroupfs" as the Docker cgroup driver. The recommended driver is "systemd". Please follow the guide at https://kubernetes.io/docs/setup/cri/
+[preflight] Reading configuration from the cluster...
+[preflight] FYI: You can look at this config file with 'kubectl -n kube-system get cm kubeadm-config -oyaml'
+[preflight] Running pre-flight checks before initializing the new control plane instance
+[preflight] Pulling images required for setting up a Kubernetes cluster
+[preflight] This might take a minute or two, depending on the speed of your internet connection
+[preflight] You can also perform this action in beforehand using 'kubeadm config images pull'
+[download-certs] Downloading the certificates in Secret "kubeadm-certs" in the "kube-system" Namespace
+[certs] Using certificateDir folder "/etc/kubernetes/pki"
+[certs] Generating "apiserver" certificate and key
+[certs] apiserver serving cert is signed for DNS names [kmaster2 kubernetes kubernetes.default kubernetes.default.svc kubernetes.default.svc.cluster.local] and IPs [10.96.0.1 172.16.16.102 172.16.16.100]
+[certs] Generating "apiserver-kubelet-client" certificate and key
+[certs] Generating "front-proxy-client" certificate and key
+[certs] Generating "etcd/server" certificate and key
+[certs] etcd/server serving cert is signed for DNS names [kmaster2 localhost] and IPs [172.16.16.102 127.0.0.1 ::1]
+[certs] Generating "etcd/healthcheck-client" certificate and key
+[certs] Generating "etcd/peer" certificate and key
+[certs] etcd/peer serving cert is signed for DNS names [kmaster2 localhost] and IPs [172.16.16.102 127.0.0.1 ::1]
+[certs] Generating "apiserver-etcd-client" certificate and key
+[certs] Valid certificates and keys now exist in "/etc/kubernetes/pki"
+[certs] Using the existing "sa" key
+[kubeconfig] Generating kubeconfig files
+[kubeconfig] Using kubeconfig folder "/etc/kubernetes"
+[kubeconfig] Writing "admin.conf" kubeconfig file
+[kubeconfig] Writing "controller-manager.conf" kubeconfig file
+[kubeconfig] Writing "scheduler.conf" kubeconfig file
+[control-plane] Using manifest folder "/etc/kubernetes/manifests"
+[control-plane] Creating static Pod manifest for "kube-apiserver"
+[control-plane] Creating static Pod manifest for "kube-controller-manager"
+[control-plane] Creating static Pod manifest for "kube-scheduler"
+[check-etcd] Checking that the etcd cluster is healthy
+[kubelet-start] Writing kubelet configuration to file "/var/lib/kubelet/config.yaml"
+[kubelet-start] Writing kubelet environment file with flags to file "/var/lib/kubelet/kubeadm-flags.env"
+[kubelet-start] Starting the kubelet
+[kubelet-start] Waiting for the kubelet to perform the TLS Bootstrap...
+[etcd] Announced new etcd member joining to the existing etcd cluster
+[etcd] Creating static Pod manifest for "etcd"
+[etcd] Waiting for the new etcd member to join the cluster. This can take up to 40s
+[upload-config] Storing the configuration used in ConfigMap "kubeadm-config" in the "kube-system" Namespace
+[mark-control-plane] Marking the node kmaster2 as control-plane by adding the label "node-role.kubernetes.io/master=''"
+[mark-control-plane] Marking the node kmaster2 as control-plane by adding the taints [node-role.kubernetes.io/master:NoSchedule]
+
+This node has joined the cluster and a new control plane instance was created:
+
+* Certificate signing request was sent to apiserver and approval was received.
+* The Kubelet was informed of the new secure connection details.
+* Control plane (master) label and taint were applied to the new node.
+* The Kubernetes control plane instances scaled up.
+* A new etcd member was added to the local/stacked etcd cluster.
+
+To start administering your cluster from this node, you need to run the following as a regular user:
+
+        mkdir -p $HOME/.kube
+        sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
+        sudo chown $(id -u):$(id -g) $HOME/.kube/config
+
+Run 'kubectl get nodes' to see this node join the cluster.
+
+root@kmaster2:~#
+
+===================================================================================================
+
+Ansicht auf kmaster1:
+
+root@kmaster1:~# cp /etc/kubernetes/admin.conf .kube/config
+root@kmaster1:~# kubectl get nodes -o wide
+NAME       STATUS     ROLES    AGE     VERSION   INTERNAL-IP   EXTERNAL-IP   OS-IMAGE             KERNEL-VERSION     CONTAINER-RUNTIME
+kmaster1   NotReady   master   10m     v1.19.2   10.0.2.15     <none>        Ubuntu 20.04.1 LTS   5.4.0-58-generic   docker://19.3.10
+kmaster2   NotReady   master   4m24s   v1.19.2   10.0.2.15     <none>        Ubuntu 20.04.1 LTS   5.4.0-58-generic   docker://19.3.10
+root@kmaster1:~#
+root@kmaster1:~#
+root@kmaster1:~#
+root@kmaster1:~#
+root@kmaster1:~# kubectl get pods -A
+NAMESPACE     NAME                               READY   STATUS    RESTARTS   AGE
+kube-system   coredns-f9fd979d6-7l7v9            0/1     Pending   0          11m
+kube-system   coredns-f9fd979d6-7v8wt            0/1     Pending   0          11m
+kube-system   etcd-kmaster1                      1/1     Running   0          11m
+kube-system   etcd-kmaster2                      1/1     Running   0          5m1s
+kube-system   kube-apiserver-kmaster1            1/1     Running   0          11m
+kube-system   kube-apiserver-kmaster2            1/1     Running   0          5m1s
+kube-system   kube-controller-manager-kmaster1   1/1     Running   1          11m
+kube-system   kube-controller-manager-kmaster2   1/1     Running   0          5m1s
+kube-system   kube-proxy-97kh5                   1/1     Running   0          5m2s
+kube-system   kube-proxy-vfp65                   1/1     Running   0          11m
+kube-system   kube-scheduler-kmaster1            1/1     Running   1          11m
+kube-system   kube-scheduler-kmaster2            1/1     Running   0          5m1s
+root@kmaster1:~#
+
+Das pod network ist noch nicht applied! Daher jetzt:
+
+root@kmaster1:~# time  kubectl --kubeconfig=/etc/kubernetes/admin.conf create -f https://docs.projectcalico.org/v3.15/manifests/calico.yaml
+configmap/calico-config created
+customresourcedefinition.apiextensions.k8s.io/bgpconfigurations.crd.projectcalico.org created
+customresourcedefinition.apiextensions.k8s.io/bgppeers.crd.projectcalico.org created
+customresourcedefinition.apiextensions.k8s.io/blockaffinities.crd.projectcalico.org created
+customresourcedefinition.apiextensions.k8s.io/clusterinformations.crd.projectcalico.org created
+customresourcedefinition.apiextensions.k8s.io/felixconfigurations.crd.projectcalico.org created
+customresourcedefinition.apiextensions.k8s.io/globalnetworkpolicies.crd.projectcalico.org created
+customresourcedefinition.apiextensions.k8s.io/globalnetworksets.crd.projectcalico.org created
+customresourcedefinition.apiextensions.k8s.io/hostendpoints.crd.projectcalico.org created
+customresourcedefinition.apiextensions.k8s.io/ipamblocks.crd.projectcalico.org created
+customresourcedefinition.apiextensions.k8s.io/ipamconfigs.crd.projectcalico.org created
+customresourcedefinition.apiextensions.k8s.io/ipamhandles.crd.projectcalico.org created
+customresourcedefinition.apiextensions.k8s.io/ippools.crd.projectcalico.org created
+customresourcedefinition.apiextensions.k8s.io/kubecontrollersconfigurations.crd.projectcalico.org created
+customresourcedefinition.apiextensions.k8s.io/networkpolicies.crd.projectcalico.org created
+customresourcedefinition.apiextensions.k8s.io/networksets.crd.projectcalico.org created
+clusterrole.rbac.authorization.k8s.io/calico-kube-controllers created
+clusterrolebinding.rbac.authorization.k8s.io/calico-kube-controllers created
+clusterrole.rbac.authorization.k8s.io/calico-node created
+clusterrolebinding.rbac.authorization.k8s.io/calico-node created
+daemonset.apps/calico-node created
+serviceaccount/calico-node created
+deployment.apps/calico-kube-controllers created
+serviceaccount/calico-kube-controllers created
+
+real    0m4.662s
+user    0m0.472s
+sys     0m0.343s
+root@kmaster1:~#
+
+Ergebnis:
+
+root@kmaster1:~# kubectl get nodes -o wide
+NAME       STATUS   ROLES    AGE   VERSION   INTERNAL-IP   EXTERNAL-IP   OS-IMAGE             KERNEL-VERSION     CONTAINER-RUNTIME
+kmaster1   Ready    master   17m   v1.19.2   10.0.2.15     <none>        Ubuntu 20.04.1 LTS   5.4.0-58-generic   docker://19.3.10
+kmaster2   Ready    master   10m   v1.19.2   10.0.2.15     <none>        Ubuntu 20.04.1 LTS   5.4.0-58-generic   docker://19.3.10
+root@kmaster1:~#
+root@kmaster1:~# kubectl get pods -A
+NAMESPACE     NAME                                      READY   STATUS    RESTARTS   AGE
+kube-system   calico-kube-controllers-6fc6f785f-bx9t8   1/1     Running   0          2m31s
+kube-system   calico-node-4r5jq                         1/1     Running   0          2m31s
+kube-system   calico-node-8hm5g                         1/1     Running   0          2m31s
+kube-system   coredns-f9fd979d6-7l7v9                   1/1     Running   0          16m
+kube-system   coredns-f9fd979d6-7v8wt                   1/1     Running   0          16m
+kube-system   etcd-kmaster1                             1/1     Running   0          16m
+kube-system   etcd-kmaster2                             1/1     Running   0          10m
+kube-system   kube-apiserver-kmaster1                   1/1     Running   0          16m
+kube-system   kube-apiserver-kmaster2                   1/1     Running   0          10m
+kube-system   kube-controller-manager-kmaster1          1/1     Running   1          16m
+kube-system   kube-controller-manager-kmaster2          1/1     Running   0          10m
+kube-system   kube-proxy-97kh5                          1/1     Running   0          10m
+kube-system   kube-proxy-vfp65                          1/1     Running   0          16m
+kube-system   kube-scheduler-kmaster1                   1/1     Running   1          16m
+kube-system   kube-scheduler-kmaster2                   1/1     Running   0          10m
+root@kmaster1:~#
+
+Status einige Minuten spaeter (mit Schoenheitsfehler):
+
+root@kmaster1:~# date; kubectl get cs
+Wed 27 Jan 2021 07:24:28 PM UTC
+Warning: v1 ComponentStatus is deprecated in v1.19+
+NAME                 STATUS      MESSAGE                                                                                       ERROR
+scheduler            Unhealthy   Get "http://127.0.0.1:10251/healthz": dial tcp 127.0.0.1:10251: connect: connection refused
+controller-manager   Unhealthy   Get "http://127.0.0.1:10252/healthz": dial tcp 127.0.0.1:10252: connect: connection refused
+etcd-0               Healthy     {"health":"true"}
+root@kmaster1:~# date; kubectl get pods -A
+Wed 27 Jan 2021 07:24:49 PM UTC
+NAMESPACE     NAME                                      READY   STATUS    RESTARTS   AGE
+kube-system   calico-kube-controllers-6fc6f785f-bx9t8   1/1     Running   0          5m47s
+kube-system   calico-node-4r5jq                         1/1     Running   0          5m47s
+kube-system   calico-node-8hm5g                         1/1     Running   0          5m47s
+kube-system   coredns-f9fd979d6-7l7v9                   1/1     Running   0          20m
+kube-system   coredns-f9fd979d6-7v8wt                   1/1     Running   0          20m
+kube-system   etcd-kmaster1                             1/1     Running   0          20m
+kube-system   etcd-kmaster2                             1/1     Running   0          13m
+kube-system   kube-apiserver-kmaster1                   1/1     Running   0          20m
+kube-system   kube-apiserver-kmaster2                   1/1     Running   0          13m
+kube-system   kube-controller-manager-kmaster1          1/1     Running   1          20m
+kube-system   kube-controller-manager-kmaster2          1/1     Running   0          13m
+kube-system   kube-proxy-97kh5                          1/1     Running   0          13m
+kube-system   kube-proxy-vfp65                          1/1     Running   0          20m
+kube-system   kube-scheduler-kmaster1                   1/1     Running   1          20m
+kube-system   kube-scheduler-kmaster2                   1/1     Running   0          13m
+root@kmaster1:~# date; kubectl get nodes -o wide
+Wed 27 Jan 2021 07:25:12 PM UTC
+NAME       STATUS   ROLES    AGE   VERSION   INTERNAL-IP   EXTERNAL-IP   OS-IMAGE             KERNEL-VERSION     CONTAINER-RUNTIME
+kmaster1   Ready    master   20m   v1.19.2   10.0.2.15     <none>        Ubuntu 20.04.1 LTS   5.4.0-58-generic   docker://19.3.10
+kmaster2   Ready    master   14m   v1.19.2   10.0.2.15     <none>        Ubuntu 20.04.1 LTS   5.4.0-58-generic   docker://19.3.10
+root@kmaster1:~#
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
