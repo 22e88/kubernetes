@@ -9,7 +9,7 @@ Vagrant.configure(2) do |config|
 
   # Load Balancer Node
   config.vm.define "loadbalancer" do |lb|
-    lb.vm.box = "bento/ubuntu-20.04"
+    lb.vm.box = "centos/7"
     lb.vm.hostname = "loadbalancer.example.com"
     lb.vm.network "private_network", ip: "172.16.16.100"
     lb.vm.provider "virtualbox" do |v|
@@ -24,7 +24,7 @@ Vagrant.configure(2) do |config|
   # Kubernetes Master Nodes
   (1..MasterCount).each do |i|
     config.vm.define "kmaster#{i}" do |masternode|
-      masternode.vm.box = "bento/ubuntu-20.04"
+      masternode.vm.box = "centos/7"
       masternode.vm.hostname = "kmaster#{i}.example.com"
       masternode.vm.network "private_network", ip: "172.16.16.10#{i}"
       masternode.vm.provider "virtualbox" do |v|
